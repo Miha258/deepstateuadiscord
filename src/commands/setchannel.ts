@@ -5,7 +5,6 @@ import fs from 'fs'
 export default {
     names: 'setchannel',
     description: 'Set the channel where bot will send map changes',
-    testOnly: true,
     slash: true,
     expectedArgs: '<channel>',
     expectedArgsTypes: ['CHANNEL'],
