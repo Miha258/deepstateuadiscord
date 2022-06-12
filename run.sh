@@ -1,2 +1,3 @@
 tsc
 node bot.ts
+ 
