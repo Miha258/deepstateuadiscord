@@ -6,6 +6,7 @@ const path = require('path')
 const {update,checkUpdates} = require('./map')
 const translate = require('translate-google')
 const fsExtra = require('fs-extra')
+const process = require('process')
 
 const client = new Client({
     intents: [
@@ -125,4 +126,4 @@ client.on('guildDelete', guild => {
     fsExtra.writeFile(channels, json)
 })
 
-client.login(token)
+client.login(process.env.TOKEN)
