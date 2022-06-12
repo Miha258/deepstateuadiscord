@@ -1,0 +1,2 @@
+tsc
+node bot.ts
