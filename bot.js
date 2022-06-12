@@ -65,8 +65,7 @@ const sendUpdates = (info,enInfo) => new Promise(async (res,rej) => {
 client.once('ready', async () => {
 	console.log('Ready!')
     new WOKCommands(client, {
-        commandsDir: path.join(__dirname, 'commands'),
-        testServers: ['704780575751274527']
+        commandsDir: path.join(__dirname, 'commands')
     }).setPrefix('!')
     for (let guild of await client.guilds.fetch()){
         if (!(guild[0] in channels)){
