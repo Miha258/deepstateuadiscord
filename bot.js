@@ -1,12 +1,12 @@
 const { Client, Intents, MessageEmbed} = require('discord.js')
-const { token } = require('./config.json')
 const channels = require('./channels.json')
 const WOKCommands = require('wokcommands')
 const path = require('path')
 const {update,checkUpdates} = require('./map')
 const translate = require('translate-google')
 const fsExtra = require('fs-extra')
-const process = require('process')
+const { exec } = require('child_process')
+require('dotenv').config()
 
 const client = new Client({
     intents: [
@@ -14,6 +14,15 @@ const client = new Client({
       Intents.FLAGS.GUILD_MESSAGES,
       Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
     ],
+})
+
+const compile = () => new Promise(() => {
+    exec('tsc',(err) => {
+        if (err){
+            console.log(err)
+            return
+        }
+    })
 })
 
 
@@ -64,7 +73,8 @@ const sendUpdates = (info,enInfo) => new Promise(async (res,rej) => {
 })
 
 client.once('ready', async () => {
-	console.log('Ready!')
+	await compile()
+    console.log('Ready!')
     new WOKCommands(client, {
         commandsDir: path.join(__dirname, 'commands')
     }).setPrefix('!')
@@ -125,5 +135,6 @@ client.on('guildDelete', guild => {
     const json = JSON.stringify(channels,null,4)
     fsExtra.writeFile(channels, json)
 })
+
 
 client.login(process.env.TOKEN)
