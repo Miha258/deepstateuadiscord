@@ -21,47 +21,60 @@ const historySelector = 'body > div.dialog-mask > div > div.dialog-content > ul 
 const closeHistorySelector = 'body > div.dialog-mask > div > div.deep-header > div'
 
 
-const closeWidget = async (page) => {
-    await page.waitForTimeout(1000)
-    await page.evaluate(() => {
-        let widgetSelector = '#getsitecontrol-243541'
-        let widget = document.querySelector(widgetSelector)
-        if (widget){
-            widget.remove()
-        }
-    })
-}
+const closeWidget = () => new Promise(async (res,rej) => {
+    try {
+        await page.waitForTimeout(1000)
+        await page.evaluate(() => {
+            let widgetSelector = '#getsitecontrol-243541'
+            let widget = document.querySelector(widgetSelector)
+            if (widget){
+                widget.remove()
+            }
+        })
+        res()
+    } catch (err){
+        console.log(err)
+        rej(err)
+    }
+})
 
 
 
-const removeHud = async (page) => {
-    await page.waitForSelector('#map > div.leaflet-control-container > div.leaflet-top.leaflet-right')
-    await page.evaluate(() => {
-        let hudSelector = '#map > div.leaflet-control-container > div.leaflet-top.leaflet-right'
-        let hud = document.querySelector(hudSelector)
-        hud.remove()
-        
-        hudSelector = 'body > div.search-container'
-        hud = document.querySelector(hudSelector)
-        hud.remove()
 
-        hudSelector = '#map > div.leaflet-control-container > div.leaflet-bottom.leaflet-right > div.leaflet-control-zoom.leaflet-bar.leaflet-control'
-        hud = document.querySelector(hudSelector)
-        hud.remove()
+const removeHud = (page) => new Promise(async (res,rej) => {
+    try {
+        await page.waitForSelector('#map > div.leaflet-control-container > div.leaflet-top.leaflet-right')
+        await page.evaluate(() => {
+            let hudSelector = '#map > div.leaflet-control-container > div.leaflet-top.leaflet-right'
+            let hud = document.querySelector(hudSelector)
+            hud.remove()
+            
+            hudSelector = 'body > div.search-container'
+            hud = document.querySelector(hudSelector)
+            hud.remove()
 
-        hudSelector = '#map > div.leaflet-control-container > div.leaflet-bottom.leaflet-right > div.history.custom-control.leaflet-control > img'
-        hud = document.querySelector(hudSelector)
-        hud.remove()
+            hudSelector = '#map > div.leaflet-control-container > div.leaflet-bottom.leaflet-right > div.leaflet-control-zoom.leaflet-bar.leaflet-control'
+            hud = document.querySelector(hudSelector)
+            hud.remove()
 
-        hudSelector = '#icon-control > div'
-        hud = document.querySelector(hudSelector)
-        hud.remove()
+            hudSelector = '#map > div.leaflet-control-container > div.leaflet-bottom.leaflet-right > div.history.custom-control.leaflet-control > img'
+            hud = document.querySelector(hudSelector)
+            hud.remove()
 
-        hudSelector = '#map > div.leaflet-control-container > div.leaflet-bottom.leaflet-right > div.leaflet-bar.custom-control.leaflet-control > div'
-        hud = document.querySelector(hudSelector)
-        hud.remove()
-    })
-}
+            hudSelector = '#icon-control > div'
+            hud = document.querySelector(hudSelector)
+            hud.remove()
+
+            hudSelector = '#map > div.leaflet-control-container > div.leaflet-bottom.leaflet-right > div.leaflet-bar.custom-control.leaflet-control > div'
+            hud = document.querySelector(hudSelector)
+            hud.remove()
+        })
+        res()
+    } catch (err){
+        console.log(err)
+        rej(err)
+    }
+})
 
 
 module.exports = {
