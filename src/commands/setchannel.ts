@@ -1,6 +1,6 @@
 import { ICommand } from 'wokcommands' 
 import fs from 'fs'
-import { MessageActionRow,MessageButton } from 'discord.js'
+import { MessageActionRow,MessageButton,Message} from 'discord.js'
 
 export default {
     names: 'setchannel',
@@ -25,6 +25,7 @@ export default {
                 collector = interaction.channel?.createMessageComponentCollector()
                 await interaction.reply({content: 'Це має бути текстовий канал!',components: [row]})
             } else {
+                collector = message.channel?.createMessageComponentCollector()
                 await message.channel.send({content: 'Це має бути текстовий канал!',components: [row]})
             }
             collector?.on('collect', async id => {
