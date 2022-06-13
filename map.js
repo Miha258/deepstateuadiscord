@@ -21,7 +21,7 @@ const historySelector = 'body > div.dialog-mask > div > div.dialog-content > ul 
 const closeHistorySelector = 'body > div.dialog-mask > div > div.deep-header > div'
 
 
-const closeWidget = () => new Promise(async (res,rej) => {
+const closeWidget = (page) => new Promise(async (res,rej) => {
     try {
         await page.waitForTimeout(1000)
         await page.evaluate(() => {
