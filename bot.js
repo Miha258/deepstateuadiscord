@@ -73,7 +73,8 @@ const sendUpdates = (info,enInfo) => new Promise(async (res,rej) => {
 })
 
 client.once('ready', async () => {
-	await compile()
+    await compile()
+    await fsExtra.mkdir('./changes')
     console.log('Ready!')
     new WOKCommands(client, {
         commandsDir: path.join(__dirname, 'commands')
