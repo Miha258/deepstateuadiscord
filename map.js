@@ -1,5 +1,5 @@
 const puppeteer = require('puppeteer')
-
+const fsExtra = require('fs-extra')
 
 const options = {
     headless: true,
@@ -58,7 +58,6 @@ const removeHud = (page) => new Promise(async (res,rej) => {
                 if (element){
                     element.remove()
                 }
-
             }
         
         })
@@ -106,6 +105,9 @@ module.exports = {
             await page.waitForTimeout(1000)
             await page.click(closeHistorySelector)
             let index = 0
+            if (fsExtra.existsSync('./changes')){
+                await fsExtra.mkdir('./changes')
+            }
             for(let url of urls){
                 index++
                 page = await browser.newPage()
