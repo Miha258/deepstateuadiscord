@@ -56,7 +56,7 @@ const removeHud = (page) => new Promise(async (res,rej) => {
             for (let selector of hudSelectors){
                 const element = document.querySelector(selector)
                 if (element){
-
+                    element.remove()
                 }
 
             }
