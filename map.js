@@ -45,29 +45,21 @@ const removeHud = (page) => new Promise(async (res,rej) => {
     try {
         await page.waitForSelector('#map > div.leaflet-control-container > div.leaflet-top.leaflet-right')
         await page.evaluate(() => {
-            let hudSelector = '#map > div.leaflet-control-container > div.leaflet-top.leaflet-right'
-            let hud = document.querySelector(hudSelector)
-            hud.remove()
+            const hudSelectors = [
+                '#map > div.leaflet-control-container > div.leaflet-top.leaflet-right',
+                'body > div.search-container',
+                '#map > div.leaflet-control-container > div.leaflet-bottom.leaflet-right > div.leaflet-control-zoom.leaflet-bar.leaflet-control',
+                '#icon-control > div',
+                '#map > div.leaflet-control-container > div.leaflet-bottom.leaflet-right > div.leaflet-bar.custom-control.leaflet-control > div'
+            ]
             
-            hudSelector = 'body > div.search-container'
-            hud = document.querySelector(hudSelector)
-            hud.remove()
-
-            hudSelector = '#map > div.leaflet-control-container > div.leaflet-bottom.leaflet-right > div.leaflet-control-zoom.leaflet-bar.leaflet-control'
-            hud = document.querySelector(hudSelector)
-            hud.remove()
-
-            hudSelector = '#map > div.leaflet-control-container > div.leaflet-bottom.leaflet-right > div.history.custom-control.leaflet-control > img'
-            hud = document.querySelector(hudSelector)
-            hud.remove()
-
-            hudSelector = '#icon-control > div'
-            hud = document.querySelector(hudSelector)
-            hud.remove()
-
-            hudSelector = '#map > div.leaflet-control-container > div.leaflet-bottom.leaflet-right > div.leaflet-bar.custom-control.leaflet-control > div'
-            hud = document.querySelector(hudSelector)
-            hud.remove()
+            for (let selector of hudSelectors){
+                const element = document.querySelector(selector)
+                if (element){
+                    element.remove()
+                }
+            }
+        
         })
         res()
     } catch (err){
