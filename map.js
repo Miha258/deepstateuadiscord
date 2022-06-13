@@ -19,6 +19,7 @@ const agreeeSelector = 'body > div.disclaimer > div > div.inner-buttons > button
 const updatesSelector = '#map > div.leaflet-control-container > div.leaflet-bottom.leaflet-right > div.history.custom-control.leaflet-control > span'
 const historySelector = 'body > div.dialog-mask > div > div.dialog-content > ul > li > div.history__description'
 const closeHistorySelector = 'body > div.dialog-mask > div > div.deep-header > div'
+const NotificationSelector = 'body > div.dialog-mask > div > div > div > a'
 
 
 const closeWidget = (page) => new Promise(async (res,rej) => {
@@ -105,8 +106,8 @@ module.exports = {
             await page.waitForTimeout(1000)
             await page.click(closeHistorySelector)
             let index = 0
-            if (fsExtra.existsSync('./changes')){
-                await fsExtra.mkdir('./changes')
+            if (!fsExtra.existsSync('changes')){
+                await fsExtra.mkdir('changes')
             }
             for(let url of urls){
                 index++
@@ -116,7 +117,13 @@ module.exports = {
                 if (await page.$('#getsitecontrol-243541')){
                     await closeWidget(page)
                 }
-                await page.waitForTimeout(4000)
+                await page.waitForTimeout(5000)
+                const notification = await page.$(NotificationSelector)
+                if (notification){
+                    console.log('closing')
+                    await notification.click()
+                }
+                await page.waitForTimeout(1000)
                 await page.screenshot({
                     path: `changes/change${index}.png`
                 })
