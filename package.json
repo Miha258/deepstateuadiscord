@@ -1,12 +1,13 @@
 {
   "name": "deeepstatemapua",
   "version": "1.0.0",
-  "description": "Bot for checking Ukranin and Russia war map",
+  "description": "Bot in Discord for checking Ukranin and Russia war map",
   "main": "bot.js",
   "scripts": {
+    "start": "node .",
     "build": "tsc"
   },
-  "author": "",
+  "author": "m1haa",
   "license": "ISC",
   "dependencies": {
     "@discordjs/builders": "^0.14.0",
