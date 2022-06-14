@@ -21,13 +21,12 @@ const historySelector = 'body > div.dialog-mask > div > div.dialog-content > ul 
 const closeHistorySelector = 'body > div.dialog-mask > div > div.deep-header > div'
 const NotificationSelector = 'body > div.dialog-mask > div > div > div > a'
 
-
 const closeWidget = (page) => new Promise(async (res,rej) => {
     try {
         await page.waitForTimeout(1000)
         await page.evaluate(() => {
-            let widgetSelector = '#getsitecontrol-243541'
-            let widget = document.querySelector(widgetSelector)
+            const widgetSelector = '#getsitecontrol-243541'
+            const widget = document.querySelector(widgetSelector)
             if (widget){
                 widget.remove()
             }
@@ -40,29 +39,46 @@ const closeWidget = (page) => new Promise(async (res,rej) => {
 })
 
 
+const closeWarBanner = (page) => new Promise (async (res,rej) => {
+    try {
+        await page.evaluate(() => {
+            const widgetSelector = '#getsitecontrol-249203'
+            const widget = document.querySelector(widgetSelector)
+            if (widget){
+                widget.remove()
+            }
+        })
+        res()
+    } catch (err){
+        console.log(err)
+        rej(err)
+    }   
+})
 
 
 const removeHud = (page) => new Promise(async (res,rej) => {
     try {
-        await page.waitForSelector('#map > div.leaflet-control-container > div.leaflet-top.leaflet-right')
-        await page.evaluate(() => {
-            const hudSelectors = [
-                '#map > div.leaflet-control-container > div.leaflet-top.leaflet-right',
-                'body > div.search-container',
-                '#map > div.leaflet-control-container > div.leaflet-bottom.leaflet-right > div.leaflet-control-zoom.leaflet-bar.leaflet-control',
-                '#icon-control > div',
-                '#map > div.leaflet-control-container > div.leaflet-bottom.leaflet-right > div.leaflet-bar.custom-control.leaflet-control > div'
-            ]
-            
-            for (let selector of hudSelectors){
-                const element = document.querySelector(selector)
-                if (element){
-                    element.remove()
+        const element = await page.$('#map > div.leaflet-control-container > div.leaflet-top.leaflet-right')
+        if (element) {
+            await page.evaluate(() => {
+                const hudSelectors = [
+                    '#map > div.leaflet-control-container > div.leaflet-top.leaflet-right',
+                    'body > div.search-container',
+                    '#map > div.leaflet-control-container > div.leaflet-bottom.leaflet-right > div.leaflet-control-zoom.leaflet-bar.leaflet-control',
+                    '#icon-control > div',
+                    '#map > div.leaflet-control-container > div.leaflet-bottom.leaflet-right > div.leaflet-bar.custom-control.leaflet-control > div'
+                ]
+                
+                for (let selector of hudSelectors){
+                    const element = document.querySelector(selector)
+                    if (element){
+                        element.remove()
+                    }
                 }
-            }
-        
-        })
-        res()
+            
+            })
+            res()
+        }
     } catch (err){
         console.log(err)
         rej(err)
@@ -108,25 +124,26 @@ module.exports = {
             let index = 0
             if (!fsExtra.existsSync('changes')){
                 await fsExtra.mkdir('changes')
-            }
+            } 
             for(let url of urls){
                 index++
                 page = await browser.newPage()
-                await page.goto(url,{ waitUntil: 'load'})
+                await page.goto(url,{waitUntil: 'load'})
                 await removeHud(page)
+                await page.waitForTimeout(7000)
                 if (await page.$('#getsitecontrol-243541')){
                     await closeWidget(page)
                 }
-                await page.waitForTimeout(5000)
                 const notification = await page.$(NotificationSelector)
                 if (notification){
-                    console.log('closing')
                     await notification.click()
-                }
-                await page.waitForTimeout(1000)
+                } 
+                await closeWarBanner(page)
                 await page.screenshot({
-                    path: `changes/change${index}.png`
+                    path: `changes/change${index}.png`,omitBackground: true
                 })
+                await page.waitForTimeout(1000)
+                await page.close() 
                 if (index+1 === urls.length){
                     await browser.close()
                 }
@@ -141,6 +158,7 @@ module.exports = {
         try {
             const browser = await puppeteer.launch(options)
             const page = await browser.newPage()
+            await page.close()
             await page.setUserAgent('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36')
             await page.goto('https://deepstatemap.live/#7/48.356/35.881',{ waitUntil: 'load' })
             await page.click(agreeeSelector)
