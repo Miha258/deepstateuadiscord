@@ -5,8 +5,8 @@ const path = require('path')
 const {update,checkUpdates} = require('./map')
 const translate = require('translate-google')
 const fsExtra = require('fs-extra')
-const { exec } = require('child_process')
 require('dotenv').config()
+
 
 const client = new Client({
     intents: [
@@ -16,14 +16,6 @@ const client = new Client({
     ],
 })
 
-const compile = () => new Promise(() => {
-    exec('tsc',(err) => {
-        if (err){
-            console.log(err)
-            return
-        }
-    })
-})
 
 
 const sendUpdates = (info,enInfo) => new Promise(async (res,rej) => {
@@ -73,8 +65,6 @@ const sendUpdates = (info,enInfo) => new Promise(async (res,rej) => {
 })
 
 client.once('ready', async () => {
-    await compile()
-    await fsExtra.mkdir('./changes')
     console.log('Ready!')
     new WOKCommands(client, {
         commandsDir: path.join(__dirname, 'commands')
