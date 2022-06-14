@@ -4,7 +4,6 @@
   "description": "Bot for checking Ukranin and Russia war map",
   "main": "bot.js",
   "scripts": {
-    "start": "node bot.js",
     "build": "tsc"
   },
   "author": "",
