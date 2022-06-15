@@ -2,7 +2,7 @@ const puppeteer = require('puppeteer')
 const fsExtra = require('fs-extra')
 
 const options = {
-    headless: true,
+    headless: false,
     args: [
         '--lang=en',
         '--no-sandbox',
@@ -21,16 +21,16 @@ const historySelector = 'body > div.dialog-mask > div > div.dialog-content > ul 
 const closeHistorySelector = 'body > div.dialog-mask > div > div.deep-header > div'
 const NotificationSelector = 'body > div.dialog-mask > div > div > div > a'
 
-const closeWidget = (page) => new Promise(async (res,rej) => {
+const closeWidget = (page,selector) => new Promise(async (res,rej) => {
     try {
         await page.waitForTimeout(1000)
-        await page.evaluate(() => {
-            const widgetSelector = '#getsitecontrol-243541'
+        await page.evaluate((selector) => {
+            const widgetSelector = selector
             const widget = document.querySelector(widgetSelector)
             if (widget){
                 widget.remove()
             }
-        })
+        },selector)
         res()
     } catch (err){
         console.log(err)
@@ -132,7 +132,7 @@ module.exports = {
                 await removeHud(page)
                 await page.waitForTimeout(7000)
                 if (await page.$('#getsitecontrol-243541')){
-                    await closeWidget(page)
+                    await closeWidget(page,'#getsitecontrol-243541')
                 }
                 const notification = await page.$(NotificationSelector)
                 if (notification){
@@ -158,29 +158,31 @@ module.exports = {
         try {
             const browser = await puppeteer.launch(options)
             const page = await browser.newPage()
-            await page.close()
             await page.setUserAgent('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36')
             await page.goto('https://deepstatemap.live/#7/48.356/35.881',{ waitUntil: 'load' })
+            await closeWidget(page,'#getsitecontrol-250341')
             await page.click(agreeeSelector)
             await page.click(updatesSelector)
-            await page.waitForSelector(historySelector)
+            await page.waitForTimeout(3000)
             const history = await page.$(historySelector)
-            const newInfo = await history.evaluate(() => {
-                const historySelector = 'body > div.dialog-mask > div > div.dialog-content > ul > li > div.history__description'
-                const history = document.querySelector(historySelector)
-                return history.innerText
-            })
-            await browser.close()
-            if (newInfo !== updatedInfo){
-                updatedInfo = newInfo
-                res(true)
+            if (history){
+                const newInfo = await history.evaluate(() => {
+                    const historySelector = 'body > div.dialog-mask > div > div.dialog-content > ul > li > div.history__description'
+                    const history = document.querySelector(historySelector)
+                    return history.innerText
+                })
+                await browser.close()
+                if (newInfo !== updatedInfo){
+                    updatedInfo = newInfo
+                    res(true)
+                }
+                res(false)
+            } else {
+                res(false)
             }
-            res(false)
         } catch (err) {
             console.log(err)
             rej(err)
         }
     })
 }
-
-module.exports.update()
