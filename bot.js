@@ -64,12 +64,7 @@ const sendUpdates = (info,enInfo) => new Promise(async (res,rej) => {
     }
 })
 
-client.once('ready', async () => {
-    //Creating dir for TypeScript
-    if (!fsExtra.existsSync('./commands')){
-        fsExtra.mkdir('./commands')
-    }
-
+client.once('ready', async () => {  
     console.log('Ready!')
     new WOKCommands(client, {
         commandsDir: path.join(__dirname, 'commands')
@@ -98,15 +93,27 @@ client.once('ready', async () => {
 
 
 
-client.on('guildCreate', guild => {
+client.on('guildCreate', async guild => {
 	channels[guild.id] = ''
     const json = JSON.stringify(channels,null,4)
     fsExtra.writeFile(channels, json)
+    const row = new MessageActionRow()
+    .addComponents(
+        new MessageButton()
+            .setEmoji('🇬🇧')
+            .setCustomId('en')
+            .setStyle('PRIMARY')
+    ).addComponents(
+        new MessageButton()
+            .setEmoji('🇺🇦')
+            .setCustomId('ua')
+            .setStyle('PRIMARY')
+    )
     const channel = guild.systemChannel()
-    const embed = new MessageEmbed({
-        title: 'Дякую,що добавили мене!/Thanks for adding me!',
-        description: 'Ua:\nТепер ви зможете бачити зміни на карті Deep Stateᵘᵃ.Використайте команду /setchannel, щоб бот міг надсилати оновлення на мапі\n[Сайт](https://deepstatemap.live)\n\
-                    \nEn:Now you can see the changes on the Deep State mapᵘᵃ. Use the /setchannel command so that the bot can send updates on the map\n[Site](https://deepstatemap.live)',
+    let collector
+    let embed = new MessageEmbed({
+        title: 'Дякую,що добавили мене!',
+        description: 'Тепер ви зможете бачити зміни на карті Deep Stateᵘᵃ.Використайте команду /setchannel, щоб бот міг надсилати оновлення на мапі\n[Сайт](https://deepstatemap.live)',
         url: 'https://deepstatemap.live',
         footer: {
             text: '©DeepStateMap',
@@ -117,13 +124,44 @@ client.on('guildCreate', guild => {
         channel.send({
             embeds: [embed]
         })
+        collector = channel.createMessageComponentCollector()
     }
     else if (guild.members.cache.get(guild.ownerId)) {
         const owner = guild.members.cache.get(guild.ownerId)
-        owner.send({
+        const message = await owner.send({
             embeds: [embed]
         })
+        collector = message.channel.createMessageComponentCollector()
     }
+    collector?.on('collect', async id => {
+        if (id.customId === 'en') {
+            embed = new MessageEmbed({
+                title: 'Thanks for adding me!',
+                description: 'Now you can see the changes on the Deep State mapᵘᵃ. Use the /setchannel command so that the bot can send updates on the map\n[Site](https://deepstatemap.live)',
+                url: 'https://deepstatemap.live',
+                footer: {
+                    text: '©DeepStateMap',
+                    icon_url: 'https://cdn4.telegram-cdn.org/file/q68DjfhmrJ8NtmhYppdyAr-974N9uLGSFmj3pxrIGWPu1pP-lOCSSzmNbCPOrZPMP_Y0weNdBV4jE63HlDgnVmxORQt3rPA9rYIprq2vYND_JTQsuDlkWEi0WoY9p_iCZPb2lX9FZE0qIa3H8Q1N0KQU1Q4yno0NIMzK9t2KQ-1AQDG54_-nACo7Uc2C4-8cICnGwu-dJqi4_mNZBsrcCcd1nhRie9pWic1njgw9Hy9bFqMuM02tOuY4_N4rMH-gGmtXJi-kQ13bY7JdI5oWY7QVXE4BP0i8Zgsso26v3q7fu-b6mbQWc1Ge9dNCG6RGBvM4zBUhC-6L3X-J2nIhZQ.jpg'
+                }
+            })
+            row.components[1].setDisabled(false)
+            row.components[0].setDisabled(true)
+            await id.update({ content: 'Channel changed', components: [row], embeds: [embed]})
+        } else if (id.customId === 'ua') {
+            embed = new MessageEmbed({
+                title: 'Дякую,що добавили мене!',
+                description: 'Тепер ви зможете бачити зміни на карті Deep Stateᵘᵃ.Використайте команду /setchannel, щоб бот міг надсилати оновлення на мапі\n[Сайт](https://deepstatemap.live)',
+                url: 'https://deepstatemap.live',
+                footer: {
+                    text: '©DeepStateMap',
+                    icon_url: 'https://cdn4.telegram-cdn.org/file/q68DjfhmrJ8NtmhYppdyAr-974N9uLGSFmj3pxrIGWPu1pP-lOCSSzmNbCPOrZPMP_Y0weNdBV4jE63HlDgnVmxORQt3rPA9rYIprq2vYND_JTQsuDlkWEi0WoY9p_iCZPb2lX9FZE0qIa3H8Q1N0KQU1Q4yno0NIMzK9t2KQ-1AQDG54_-nACo7Uc2C4-8cICnGwu-dJqi4_mNZBsrcCcd1nhRie9pWic1njgw9Hy9bFqMuM02tOuY4_N4rMH-gGmtXJi-kQ13bY7JdI5oWY7QVXE4BP0i8Zgsso26v3q7fu-b6mbQWc1Ge9dNCG6RGBvM4zBUhC-6L3X-J2nIhZQ.jpg'
+                }
+            })
+            row.components[0].setDisabled(false)
+            row.components[1].setDisabled(true)
+            await id.update({ content: 'Канал змінено', components: [row] ,embeds: [embed]})
+        }
+    })
 })
 
 client.on('guildDelete', guild => {
