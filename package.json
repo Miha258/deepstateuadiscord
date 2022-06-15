@@ -7,6 +7,9 @@
     "start": "node .",
     "build": "tsc"
   },
+  "engines": {
+    "node": "18.3.0"
+  },
   "author": "m1haa",
   "license": "ISC",
   "dependencies": {
