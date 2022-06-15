@@ -65,6 +65,11 @@ const sendUpdates = (info,enInfo) => new Promise(async (res,rej) => {
 })
 
 client.once('ready', async () => {
+    //Creating dir for TypeScript
+    if (!fsExtra.existsSync('./commands')){
+        fsExtra.mkdir('./commands')
+    }
+
     console.log('Ready!')
     new WOKCommands(client, {
         commandsDir: path.join(__dirname, 'commands')
@@ -107,7 +112,7 @@ client.on('guildCreate', guild => {
             text: '©DeepStateMap',
             icon_url: 'https://cdn4.telegram-cdn.org/file/q68DjfhmrJ8NtmhYppdyAr-974N9uLGSFmj3pxrIGWPu1pP-lOCSSzmNbCPOrZPMP_Y0weNdBV4jE63HlDgnVmxORQt3rPA9rYIprq2vYND_JTQsuDlkWEi0WoY9p_iCZPb2lX9FZE0qIa3H8Q1N0KQU1Q4yno0NIMzK9t2KQ-1AQDG54_-nACo7Uc2C4-8cICnGwu-dJqi4_mNZBsrcCcd1nhRie9pWic1njgw9Hy9bFqMuM02tOuY4_N4rMH-gGmtXJi-kQ13bY7JdI5oWY7QVXE4BP0i8Zgsso26v3q7fu-b6mbQWc1Ge9dNCG6RGBvM4zBUhC-6L3X-J2nIhZQ.jpg'
         }
-    })
+    })  
     if (channel){
         channel.send({
             embeds: [embed]
