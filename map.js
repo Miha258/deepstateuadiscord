@@ -2,7 +2,7 @@ const puppeteer = require('puppeteer')
 const fsExtra = require('fs-extra')
 
 const options = {
-    headless: false,
+    headless: true,
     args: [
         '--lang=en',
         '--no-sandbox',
