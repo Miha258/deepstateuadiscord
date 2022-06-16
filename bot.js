@@ -38,7 +38,6 @@ const sendUpdates = (info,enInfo) => new Promise(async (res,rej) => {
             if (channel){
                 const hasPermissionInChannel = guild.me.permissionsIn(channel).has(['VIEW_CHANNEL','SEND_MESSAGES'])
                 if (hasPermissionInChannel){
-                    console.log(123)
                     channel.send({
                         files: [{
                             attachment: './map.png',
