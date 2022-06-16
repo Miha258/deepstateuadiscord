@@ -2,7 +2,7 @@ const puppeteer = require('puppeteer')
 const fsExtra = require('fs-extra')
 
 const options = {
-    headless: true,
+    headless: false,
     args: [
         '--lang=en',
         '--no-sandbox',
@@ -93,6 +93,8 @@ module.exports = {
             let page = await browser.newPage()
             await page.setUserAgent('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36')
             await page.goto('https://deepstatemap.live/#7/48.356/35.881',{ waitUntil: 'load' })
+            await page.waitForTimeout(1000)
+            await closeWidget(page,'#getsitecontrol-250341')
             await page.click(agreeeSelector)
             await page.waitForTimeout(300)
             await page.screenshot({
@@ -103,52 +105,57 @@ module.exports = {
             await page.click(updatesSelector)
             await page.waitForSelector(historySelector)
             const history = await page.$(historySelector)
-            updatedInfo = await history.evaluate(() => {
-                const historySelector = 'body > div.dialog-mask > div > div.dialog-content > ul > li > div.history__description'
-                const history = document.querySelector(historySelector)
-                return history.innerText
-            })
-            const urls = await history.evaluate(() => {
-                const urls = []
-                const placeSelector = 'body > div.dialog-mask > div > div.dialog-content > ul > li > div.history__description > a'
-                let places = document.querySelectorAll(placeSelector)
-                places = places.forEach((place) => {
-                    urls.push(place.href)
+            if (history){
+                updatedInfo = await history.evaluate(() => {
+                    const historySelector = 'body > div.dialog-mask > div > div.dialog-content > ul > li > div.history__description'
+                    const history = document.querySelector(historySelector)
+                    return history.innerText
                 })
-                return urls
-            })
-            
-            await page.waitForSelector(closeHistorySelector)
-            await page.waitForTimeout(1000)
-            await page.click(closeHistorySelector)
-            let index = 0
-            if (!fsExtra.existsSync('changes')){
-                await fsExtra.mkdir('changes')
-            } 
-            for(let url of urls){
-                index++
-                page = await browser.newPage()
-                await page.goto(url,{waitUntil: 'load'})
-                await removeHud(page)
-                await page.waitForTimeout(7000)
-                if (await page.$('#getsitecontrol-243541')){
-                    await closeWidget(page,'#getsitecontrol-243541')
-                }
-                const notification = await page.$(NotificationSelector)
-                if (notification){
-                    await notification.click()
-                } 
-                await closeWarBanner(page)
-                await page.screenshot({
-                    path: `changes/change${index}.png`,omitBackground: true
+                const urls = await history.evaluate(() => {
+                    const urls = []
+                    const placeSelector = 'body > div.dialog-mask > div > div.dialog-content > ul > li > div.history__description > a'
+                    let places = document.querySelectorAll(placeSelector)
+                    places = places.forEach((place) => {
+                        urls.push(place.href)
+                    })
+                    return urls
                 })
+                
+                await page.waitForSelector(closeHistorySelector)
                 await page.waitForTimeout(1000)
-                await page.close() 
-                if (index+1 === urls.length){
-                    await browser.close()
+                await page.click(closeHistorySelector)
+                let index = 0
+                if (!fsExtra.existsSync('changes')){
+                    await fsExtra.mkdir('changes')
+                } 
+                for(let url of urls){
+                    index++
+                    page = await browser.newPage()
+                    await page.goto(url,{waitUntil: 'load'})
+                    await removeHud(page)
+                    await page.waitForTimeout(7000)
+                    if (await page.$('#getsitecontrol-243541')){
+                        await closeWidget(page,'#getsitecontrol-243541')
+                    }
+                    const notification = await page.$(NotificationSelector)
+                    if (notification){
+                        await notification.click()
+                    } 
+                    await closeWarBanner(page)
+                    await page.screenshot({
+                        path: `changes/change${index}.png`,omitBackground: true
+                    })
+                    await page.waitForTimeout(1000)
+                    await page.close() 
+                    if (index === urls.length){
+                        console.log('123')
+                        await browser.close()
+                    }
                 }
+                res(updatedInfo)
+            } else {
+                rej()
             }
-            res(updatedInfo)
         } catch (err){
             rej(err)
             console.log(err)
@@ -186,3 +193,4 @@ module.exports = {
         }
     })
 }
+
