@@ -148,7 +148,6 @@ module.exports = {
                     await page.waitForTimeout(1000)
                     await page.close() 
                     if (index === urls.length){
-                        console.log('123')
                         await browser.close()
                     }
                 }
