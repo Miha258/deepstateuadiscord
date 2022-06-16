@@ -33,29 +33,34 @@ const sendUpdates = (info,enInfo) => new Promise(async (res,rej) => {
                 },
                 timestamp: today.toLocaleDateString("uk")
             })
+            
             .setImage('attachment://map.png')
             if (channel){
-                channel.send({
-                    files: [{
-                        attachment: './map.png',
-                        name: 'map.png'
-                    }],
-                    embeds: [embed]
-                })
-                channel.send(`\n------------------------------------------------------------------------------------------------------------\n`)
-                channel.send(`Зміни:\n${info}\n\nChanges:\n${enInfo}`)
-                fsExtra.readdirSync('./changes').forEach(file => {
-                    try {
-                        channel.send({
-                            files: [{
-                                attachment: `./changes/${file}`,
-                                name: file
-                            }]
-                        })
-                    } catch (err) {
-                        console.log(err)
-                    }
-                }) 
+                const hasPermissionInChannel = guild.me.permissionsIn(channel).has(['VIEW_CHANNEL','SEND_MESSAGES'])
+                if (hasPermissionInChannel){
+                    console.log(123)
+                    channel.send({
+                        files: [{
+                            attachment: './map.png',
+                            name: 'map.png'
+                        }],
+                        embeds: [embed]
+                    })
+                    channel.send(`\n------------------------------------------------------------------------------------------------------------\n`)
+                    channel.send(`Зміни:\n${info}\n\nChanges:\n${enInfo}`)
+                    fsExtra.readdirSync('./changes').forEach(file => {
+                        try {
+                            channel.send({
+                                files: [{
+                                    attachment: `./changes/${file}`,
+                                    name: file
+                                }]
+                            })
+                        } catch (err) {
+                            console.log(err)
+                        }
+                    })
+                } 
             }
         }
         res('ok')
@@ -76,6 +81,7 @@ client.once('ready', async () => {
             fsExtra.writeFile('./channels.json', json,(err) => console.log(err))
         }
     }
+    
     setInterval(async () => {
         try {
             if (await checkUpdates()) {

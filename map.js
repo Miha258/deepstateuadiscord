@@ -171,6 +171,7 @@ module.exports = {
             await page.click(updatesSelector)
             await page.waitForTimeout(3000)
             const history = await page.$(historySelector)
+            console.log()
             if (history){
                 const newInfo = await history.evaluate(() => {
                     const historySelector = 'body > div.dialog-mask > div > div.dialog-content > ul > li > div.history__description'
